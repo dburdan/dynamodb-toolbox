@@ -773,6 +773,9 @@ class Entity<
     // Loop through valid fields and add appropriate action
     Object.keys(data).forEach((field) => {
       const mapping = schema.attributes[field]
+      const fieldIsNullOrEmpty = typeof data[field] === 'undefined'
+        || data[field] === null
+        || (typeof data[field] === 'string' || Array.isArray(data[field])) && !data[field].length;
 
       // Remove attributes
       if (field === '$remove') {
@@ -789,7 +792,7 @@ class Entity<
           REMOVE.push(`#${attr}`)
           names[`#${attr}`] = attr
         } // end for
-      } else if (this._table!._removeNulls === true && (data[field] === null || String(data[field]).trim() === '') && (!mapping.link || mapping.save)) {
+      } else if (this._table!._removeNulls === true && fieldIsNullOrEmpty && (!mapping.link || mapping.save)) {
         REMOVE.push(`#${field}`)
         names[`#${field}`] = field
       } else if (
